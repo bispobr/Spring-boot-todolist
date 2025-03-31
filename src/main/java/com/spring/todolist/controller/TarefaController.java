@@ -53,7 +53,7 @@ public class TarefaController {
         }
     }
 
-    @DeleteMapping("/id")
+    @DeleteMapping("/{id}")
     public  ResponseEntity<Void> apagarTarefa(@PathVariable Long id){
         Optional<Tarefas> tarefas = tarefaRepository.findById(id);
 
