@@ -2,8 +2,9 @@ package com.spring.todolist.controller;
 
 
 import com.spring.todolist.dto.TarefaRequisicaoDto;
+import com.spring.todolist.dto.TarefaRespostaDto;
 import com.spring.todolist.model.Tarefas;
-import com.spring.todolist.repository.TarefaRepository;
+import com.spring.todolist.service.TarefaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -14,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Slf4j
 @RestController
@@ -22,15 +23,15 @@ import java.util.Optional;
 public class TarefaController {
 
     @Autowired
-    private TarefaRepository tarefaRepository;
+    private TarefaService tarefaService;
 
     @GetMapping
     @Operation(description = "Endpoint responsável por listar todos as tarefas")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "500", description = "Erro interno")
-    public List<Tarefas> getTodasTarefas(){
-        log.info("Listando todas as tarefas");
-        return tarefaRepository.findAll();
+    public ResponseEntity<List<TarefaRespostaDto>> getTodasTarefas(){
+        log.info("Solicitação de Listagem de todas as tarefas recebida");
+        return  ResponseEntity.ok().body(tarefaService.listarTodasTarefas());
     }
 
     @GetMapping ("/{id}")
@@ -40,9 +41,8 @@ public class TarefaController {
     @ApiResponse(responseCode = "404", description = "tarefa não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno")
     public ResponseEntity<Tarefas> getTarefaById(@PathVariable Long id){
-        Optional<Tarefas> tarefas = tarefaRepository.findById(id);
-        log.info("solicitação para listar tarefas especifica recebida id: " + id);
-        return tarefas.map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());
+        log.info("solicitação para listar tarefas por id recebida");
+        return tarefaService.buscarTarefaPorId(id);
     }
 
     @PostMapping
@@ -50,11 +50,9 @@ public class TarefaController {
     @ApiResponse (responseCode = "201", description = "Cadastro bem sucedida")
     @ApiResponse(responseCode = "400", description = "Erro de Requisição")
     @ApiResponse(responseCode = "500", description = "Erro interno")
-    public  ResponseEntity<Tarefas> criarTarefa (@Valid  @RequestBody TarefaRequisicaoDto tarefas){
+    public  ResponseEntity<TarefaRespostaDto> criarTarefa (@Valid  @RequestBody TarefaRequisicaoDto tarefas){
         log.info("solicitação para criar tarefas  recebida");
-        Tarefas novaTarefa = new Tarefas(tarefas);
-        Tarefas tarefaSalva = tarefaRepository.save(novaTarefa);
-        return  ResponseEntity.status(HttpStatus.CREATED).body(tarefaSalva);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(tarefaService.cadastarNovaTarefa(tarefas));
     }
 
     @PutMapping("/{id}")
@@ -63,23 +61,9 @@ public class TarefaController {
     @ApiResponse(responseCode = "400", description = "Erro de Requisição")
     @ApiResponse(responseCode = "404", description = "tarefa não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno")
-    public ResponseEntity<Tarefas> atualizarTarefa(@PathVariable Long id, @Valid @RequestBody TarefaRequisicaoDto tarefaInformacao){
-        Optional<Tarefas> tarefas = tarefaRepository.findById(id);
-        log.info("solicitação para atualizar  tarefas  recebida id: " + id );
-        if (tarefas.isPresent()){
-            Tarefas encontrado = tarefas.get();
-            encontrado.setTitulo(tarefaInformacao.titulo());
-            encontrado.setDescricao(tarefaInformacao.descricao());
-            encontrado.setCompleto(tarefaInformacao.completo());
-
-            Tarefas tarefaAtualizada = tarefaRepository.save(encontrado);
-            log.info("tarefas atualizada");
-            return ResponseEntity.ok(tarefaAtualizada);
-
-        } else{
-            log.info("Tarefa não encontrada");
-            return  ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<TarefaRespostaDto> atualizarTarefa(@PathVariable Long id, @Valid @RequestBody TarefaRequisicaoDto tarefaInformacao){
+        log.info("solicitação para atualizar tarefas por id recebida ");
+        return tarefaService.atualizarTarefa(id,tarefaInformacao);
     }
 
     @DeleteMapping("/{id}")
@@ -88,17 +72,8 @@ public class TarefaController {
     @ApiResponse(responseCode = "400", description = "Erro de Requisição")
     @ApiResponse(responseCode = "404", description = "tarefa não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno")
-    public  ResponseEntity<Void> apagarTarefa(@PathVariable Long id){
-        log.info("solicitação para remover tarefa  recebida id: " + id );
-        Optional<Tarefas> tarefas = tarefaRepository.findById(id);
-
-        if (tarefas.isPresent()){
-           tarefaRepository.delete(tarefas.get());
-            log.info("tarefas removida com sucesso");
-           return ResponseEntity.noContent().build();
-        } else {
-            log.info("Tarefa não encontrada");
-            return ResponseEntity.notFound().build();
-        }
+    public  ResponseEntity<Object> apagarTarefa(@PathVariable Long id){
+        log.info("solicitação para remover tarefa  recebida " );
+        return  tarefaService.removerTarefa(id);
     }
 }
