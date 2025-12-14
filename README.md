@@ -11,6 +11,10 @@ Esta é uma API REST desenvolvida para gerenciamento de tarefas (Todo List), imp
 - **Spring Boot Actuator**: fornece endpoints para monitoramento e métricas da aplicação.
 - **Integração Swagger + Actuator**: permite a visualização de métricas diretamente via interface Swagger.
 - **Lombok (@slf4j)**: utilizado para geração automática de logs com a anotação `@Slf4j`.
+- **Cache** – uso de cache local
+- **Tratamento de Exceções** - @RestControllerAdvice
+- **JUnit 5 + Mockito** – Testes Unitarios
+- **Docker** – criação, implantação e gerenciamento de aplicações dentro de contêineres.
 
 ## Requisitos
 
@@ -33,6 +37,27 @@ git https://github.com/bispobr/Spring-boot-todolist.git
 3. A documentação da API está acessível através do Link http://localhost:8080/swagger-ui/index.html#/
 4. O endpoint de saúde e métricas do Actuator está acessível através do Link http://localhost:8080/actuator/health
 
+
+## Como Rodar em um Container (Opcional)
+
+1. Construa o projeto
+
+```bash
+mvn clean package 
+```
+
+2. Gere a Imagem Docker, com o Docker  instalado execute:
+
+
+```bash
+docker build -t todolist . 
+```
+
+3. Execute o Container
+
+```bash
+docker run -p 8080:8080 todolist
+```
 
 ## API Endpoints
 
