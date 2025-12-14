@@ -1,6 +1,5 @@
 package com.spring.todolist.model;
 
-import com.spring.todolist.dto.TarefaRequisicaoDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,9 +24,4 @@ public class Tarefas {
     private String descricao;
     private boolean completo;
 
-    public Tarefas(TarefaRequisicaoDto tarefa) {
-        this.titulo = tarefa.titulo();
-        this.descricao = tarefa.descricao();
-        this.completo = tarefa.completo();
-    }
 }
