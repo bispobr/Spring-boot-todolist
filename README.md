@@ -1,117 +1,205 @@
 # TodoList API
 
-Esta é uma API REST desenvolvida para gerenciamento de tarefas (Todo List), implementando as operações básicas de um CRUD. A aplicação foi construída com foco em simplicidade e boas práticas de desenvolvimento, utilizando uma stack moderna para documentação, monitoramento e geração de logs.
+API REST desenvolvida com Java e Spring Boot para gerenciamento de tarefas, disponibilizando operações de CRUD e recursos complementares de cache, validação, tratamento de exceções, documentação e monitoramento.
 
+## Funcionalidades
 
-## Tecnologias Utilizadas
+- Cadastro de tarefas
+- Listagem de tarefas
+- Consulta de tarefa por ID
+- Atualização de tarefa
+- Exclusão de tarefa
+- Validação dos dados de entrada
+- Tratamento global de exceções com `@RestControllerAdvice`
+- Cache local
+- Logging com `@Slf4j`
+- Documentação interativa com Swagger/OpenAPI
+- Monitoramento com Spring Boot Actuator
+- Testes automatizados com JUnit 5 e Mockito
+- Execução em container Docker
 
-- **Spring Boot**: framework principal para construção da API REST.
-- **H2 Database**: banco de dados em memória utilizado para armazenamento das tarefas.
-- **Swagger**: ferramenta de documentação interativa da API.
-- **Spring Boot Actuator**: fornece endpoints para monitoramento e métricas da aplicação.
-- **Integração Swagger + Actuator**: permite a visualização de métricas diretamente via interface Swagger.
-- **Lombok (@slf4j)**: utilizado para geração automática de logs com a anotação `@Slf4j`.
-- **Cache** – uso de cache local
-- **Tratamento de Exceções** - @RestControllerAdvice
-- **JUnit 5 + Mockito** – Testes Unitarios
-- **Docker** – criação, implantação e gerenciamento de aplicações dentro de contêineres.
+## Tecnologias
+
+- Java 21+
+- Spring Boot
+- H2 Database
+- Swagger/OpenAPI
+- Spring Boot Actuator
+- Lombok
+- JUnit 5
+- Mockito
+- Docker
+- Maven
 
 ## Requisitos
 
 - Java 21+
 - Maven
+- Docker (opcional)
 
-## Executando o Projeto
+## Executando o projeto
 
-1. Clone o repositório:
-
-```bash
-git https://github.com/bispobr/Spring-boot-todolist.git
-```
-
-
-## Como usar
-
-1. Inicie a aplicação
-2. A API está acessivel atraves do endereço http://localhost:8080
-3. A documentação da API está acessível através do Link http://localhost:8080/swagger-ui/index.html#/
-4. O endpoint de saúde e métricas do Actuator está acessível através do Link http://localhost:8080/actuator/health
-
-
-## Como Rodar em um Container (Opcional)
-
-1. Construa o projeto
+Clone o repositório:
 
 ```bash
-mvn clean package 
+git clone https://github.com/bispobr/Spring-boot-todolist.git
+cd Spring-boot-todolist
 ```
 
-2. Gere a Imagem Docker, com o Docker  instalado execute:
-
+Execute a aplicação:
 
 ```bash
-docker build -t todolist . 
+mvn spring-boot:run
 ```
 
-3. Execute o Container
+A API estará disponível em:
+
+```text
+http://localhost:8080
+```
+
+## Swagger / OpenAPI
+
+Com a aplicação em execução, acesse:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+A interface permite consultar e testar os endpoints disponíveis na API.
+
+## Actuator
+
+Endpoint de saúde da aplicação:
+
+```text
+http://localhost:8080/actuator/health
+```
+
+## API Endpoints
+
+### Listar tarefas
+
+```http
+GET /api/tarefas
+```
+
+Retorna todas as tarefas cadastradas.
+
+### Buscar tarefa por ID
+
+```http
+GET /api/tarefas/{id}
+```
+
+Retorna os dados da tarefa correspondente ao ID informado.
+
+### Criar tarefa
+
+```http
+POST /api/tarefas
+Content-Type: application/json
+```
+
+Exemplo:
+
+```json
+{
+  "titulo": "Estudar Spring Boot",
+  "descricao": "Revisar desenvolvimento de APIs REST",
+  "completo": false
+}
+```
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `titulo` | `String` | Título da tarefa. |
+| `descricao` | `String` | Descrição da tarefa. |
+| `completo` | `Boolean` | Indica se a tarefa foi concluída. |
+
+### Atualizar tarefa
+
+```http
+PUT /api/tarefas/{id}
+Content-Type: application/json
+```
+
+Exemplo:
+
+```json
+{
+  "id": 1,
+  "titulo": "Estudar Spring Boot",
+  "descricao": "Revisar testes e cache",
+  "completo": true
+}
+```
+
+### Excluir tarefa
+
+```http
+DELETE /api/tarefas/{id}
+```
+
+Exclui a tarefa correspondente ao ID informado.
+
+## Cache
+
+A aplicação utiliza cache local para reduzir consultas repetidas aos dados das tarefas, conforme a implementação atual do serviço.
+
+## Testes
+
+Execute os testes automatizados com:
+
+```bash
+mvn test
+```
+
+Os testes utilizam JUnit 5 e Mockito.
+
+## Docker
+
+Gere o pacote da aplicação:
+
+```bash
+mvn clean package
+```
+
+Gere a imagem:
+
+```bash
+docker build -t todolist .
+```
+
+Execute o container:
 
 ```bash
 docker run -p 8080:8080 todolist
 ```
 
-## API Endpoints
+## Fluxo simplificado
 
-API contem os seguintes endpoints :
-
-```http request
-GET /api/tarefas - retorna todas as tarefas registradas
+```text
+Cliente
+   │
+   ▼
+API REST
+   │
+   ▼
+Validação
+   │
+   ▼
+Serviço
+   │
+   ├── Cache
+   │
+   ▼
+Persistência
+   │
+   ▼
+H2 Database
 ```
 
-```http request
-GET /api/tarefas/{id} - retorna os dados de uma tarefa específica
-```
+## Status
 
-```http request
-POST /api/tarefas - cadastra uma nova tarefa no banco de dados
-Content-Type: application/json
-
-{
- "titulo": "xxxxxx",
- "descricao" : "xxxxxx",
- "completo" : "False"
-}
-```
-
-| Parâmetro   | Tipo      | Descrição                           |
-| :---------- |:----------| :---------------------------------- |
-| `titulo` | `String`  | **Obrigatório**. O título da tarefa 
-| `descricao` | `String`  | **Obrigatório**. A descrição da tarefa 
-| `completo` | `Boolean` | **Obrigatório**. O status da tarefa 
-
-```http request
-PUT /api/tarefas/{id} - atualiza as informações de uma tarefa existente
-Content-Type: application/json
-
-{
- "id": x,
- "titulo": "xxxxxx",
- "descricao": "xxxxxx",
- "completo": true
-}
-```
-
-
-| Parâmetro   | Tipo      | Descrição                           |
-| :---------- |:----------| :---------------------------------- |
-| `id` | `Long`    | **Obrigatório**. O id da tarefa 
-| `titulo` | `String`  | **Obrigatório**. O título da tarefa 
-| `descricao` | `String`  | **Obrigatório**. A descrição da tarefa 
-| `completo` | `Boolean` | **Obrigatório**. O status da tarefa 
-
-
-```http request
-DELETE /api/tarefas/{id} - exclui uma tarefa do banco de dados
-
-```
-
-
+Projeto desenvolvido para praticar a construção de APIs REST com Spring Boot, operações CRUD, cache, validação, tratamento de exceções, testes automatizados, documentação e monitoramento.
